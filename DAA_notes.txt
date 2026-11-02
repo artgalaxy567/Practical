@@ -1,0 +1,733 @@
+DAA PRACTICAL EXAM NOTES
+Based on: LP-3 Laboratory Manual PDF - Group A (DAA)
+Language: Python
+Experiments covered: 1 to 5
+
+============================================================
+HOW TO WRITE ANY PRACTICAL IN THE EXAM
+============================================================
+1. Title
+2. Aim / Objective
+3. Algorithm
+4. Program
+5. Output
+6. Time and Space Complexity
+7. Conclusion
+8. Control Abstraction (write only if asked by the examiner)
+
+NOTE ON CONTROL ABSTRACTION:
+Control abstraction is a general way of expressing the steps of an algorithm without depending on a particular programming language.
+In DAA, it is useful to explain the general structure of a design technique such as Greedy, Dynamic Programming or Backtracking.
+It is not always a separate compulsory section in every practical. Write it when asked or when your teacher expects it.
+
+============================================================
+PRACTICAL 1: FIBONACCI SERIES
+============================================================
+
+TITLE:
+Write recursive and non-recursive programs to calculate Fibonacci numbers and analyze their time and space complexity.
+
+AIM:
+To generate the Fibonacci series using recursive and non-recursive methods and compare their time and space complexity.
+
+OBJECTIVES:
+1. To understand the Fibonacci series.
+2. To implement recursion and iteration.
+3. To compare the time and space requirements of both methods.
+
+BASIC THEORY:
+The Fibonacci series is a sequence in which every number is the sum of the previous two numbers.
+Starting values are F(0) = 0 and F(1) = 1.
+Formula: F(n) = F(n-1) + F(n-2)
+Example: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+
+ALGORITHM - NON-RECURSIVE:
+1. Start.
+2. Read the number of terms n.
+3. Initialize a = 0 and b = 1.
+4. Repeat n times:
+   a. Display a.
+   b. Calculate c = a + b.
+   c. Set a = b and b = c.
+5. Stop.
+
+ALGORITHM - RECURSIVE:
+1. Start.
+2. Read n.
+3. Define fib(n).
+4. If n is 0 or 1, return n.
+5. Otherwise return fib(n-1) + fib(n-2).
+6. Call fib() for each required term and display the result.
+7. Stop.
+
+PYTHON PROGRAM:
+def fibonacci_iterative(n):
+    a, b = 0, 1
+    result = []
+    for _ in range(n):
+        result.append(a)
+        a, b = b, a + b
+    return result
+
+def fibonacci_recursive(n):
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+n = int(input("Enter number of terms: "))
+
+if n <= 0:
+    print("Enter a positive number.")
+else:
+    print("Non-recursive series:", fibonacci_iterative(n))
+    print("Recursive series:", [fibonacci_recursive(i) for i in range(n)])
+
+SAMPLE OUTPUT:
+Enter number of terms: 7
+Non-recursive series: [0, 1, 1, 2, 3, 5, 8]
+Recursive series: [0, 1, 1, 2, 3, 5, 8]
+
+COMPLEXITY:
+Non-recursive method:
+Time Complexity: O(n)
+Space Complexity: O(n) for the result list; O(1) auxiliary space if values are printed directly without storing them.
+Recursive method:
+Time Complexity: O(2^n) approximately (exponential).
+Space Complexity: O(n) due to the recursion call stack.
+
+CONTROL ABSTRACTION:
+Iteration:
+Initialize the first two values and repeatedly calculate the next value using a loop.
+Recursion:
+Solve the problem by calling the same function for smaller inputs until the base case is reached.
+Base case: n <= 1.
+Recursive case: fib(n-1) + fib(n-2).
+
+CONCLUSION:
+Thus, the Fibonacci series was generated using recursive and non-recursive methods, and their time and space complexities were studied.
+
+EXTRA VIVA / PRACTICAL QUESTIONS:
+Q1. What is recursion?
+Ans. A function calling itself is called recursion.
+Q2. What is iteration?
+Ans. Repeating a set of statements using loops is called iteration.
+Q3. What is the base condition?
+Ans. It is the condition that stops recursive calls.
+Q4. Which method is faster for ordinary Fibonacci generation?
+Ans. The iterative method is faster because it avoids repeated calculations.
+Q5. What is the first term of the Fibonacci series?
+Ans. 0.
+Q6. What is the recurrence relation?
+Ans. F(n) = F(n-1) + F(n-2).
+Q7. Why is recursive Fibonacci slow?
+Ans. It calculates the same subproblems many times.
+
+============================================================
+PRACTICAL 2: HUFFMAN ENCODING
+============================================================
+
+TITLE:
+Write a program to implement Huffman Encoding using a Greedy Strategy.
+
+AIM:
+To implement Huffman Encoding using the Greedy Method for lossless data compression.
+
+OBJECTIVES:
+1. To understand the Greedy Method.
+2. To construct a Huffman Tree using character frequencies.
+3. To generate variable-length prefix codes.
+4. To understand lossless compression.
+
+BASIC THEORY:
+Huffman Coding is a lossless data compression technique.
+It assigns shorter codes to frequently occurring characters and longer codes to less frequent characters.
+It uses a binary tree and the Greedy Method.
+Prefix property: No character's code is the prefix of another character's code.
+In the tree, left edge is generally 0 and right edge is 1.
+
+ALGORITHM:
+1. Start.
+2. Read the input string.
+3. Count the frequency of every character.
+4. Insert each character and its frequency into a min-priority queue.
+5. Remove the two nodes having the smallest frequencies.
+6. Create a new internal node whose frequency is the sum of the two frequencies.
+7. Make the removed nodes its left and right children.
+8. Insert the new node back into the priority queue.
+9. Repeat steps 5 to 8 until only one node remains. This is the Huffman Tree root.
+10. Traverse the tree: add 0 when moving left and 1 when moving right.
+11. Display the code of every character.
+12. Stop.
+
+PYTHON PROGRAM:
+import heapq
+from collections import Counter
+
+class Node:
+    def __init__(self, char, freq, left=None, right=None):
+        self.char = char
+        self.freq = freq
+        self.left = left
+        self.right = right
+
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+def build_huffman(text):
+    if not text:
+        return {}
+
+    frequency = Counter(text)
+    heap = [Node(ch, freq) for ch, freq in frequency.items()]
+    heapq.heapify(heap)
+
+    if len(heap) == 1:
+        return {heap[0].char: "0"}
+
+    while len(heap) > 1:
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+        parent = Node(None, left.freq + right.freq, left, right)
+        heapq.heappush(heap, parent)
+
+    codes = {}
+
+    def make_codes(node, code):
+        if node.char is not None:
+            codes[node.char] = code
+            return
+        make_codes(node.left, code + "0")
+        make_codes(node.right, code + "1")
+
+    make_codes(heap[0], "")
+    return codes
+
+message = input("Enter a string: ")
+codes = build_huffman(message)
+
+print("Huffman Codes:")
+for char, code in sorted(codes.items()):
+    print(repr(char), ":", code)
+
+encoded = "".join(codes[ch] for ch in message)
+print("Encoded message:", encoded)
+
+SAMPLE OUTPUT:
+Enter a string: banana
+Huffman Codes:
+'a' : 0
+'b' : 10
+'n' : 11
+Encoded message: 100110110
+
+NOTE:
+The exact 0/1 codes may differ when frequencies are tied or when left/right nodes are interchanged. The encoded length and prefix-free property remain valid.
+
+COMPLEXITY:
+With a min-heap, building the Huffman Tree takes O(k log k), where k is the number of distinct characters.
+Space Complexity: O(k) for the tree, heap and code table.
+
+CONTROL ABSTRACTION - GREEDY METHOD:
+GREEDY(problem):
+1. Create an initially empty solution.
+2. While the solution is not complete:
+   a. Select the locally best available choice.
+   b. If the choice is feasible, include it.
+3. Return the solution.
+For Huffman Coding, the locally best choice is to repeatedly combine the two nodes with the smallest frequencies.
+
+CONCLUSION:
+Thus, Huffman Encoding was implemented using the Greedy Method and variable-length prefix codes were generated for lossless data compression.
+
+EXTRA VIVA / PRACTICAL QUESTIONS:
+Q1. What is a Greedy Method?
+Ans. It selects the best available choice at each step.
+Q2. What is Huffman Coding?
+Ans. It is a lossless data compression technique.
+Q3. Who developed Huffman Coding?
+Ans. David A. Huffman.
+Q4. What is a Huffman Tree?
+Ans. It is a binary tree used to generate Huffman codes.
+Q5. What is a prefix code?
+Ans. A code in which no code is the starting part of another code.
+Q6. Why are frequent characters given shorter codes?
+Ans. To reduce the total number of bits.
+Q7. Is Huffman Coding lossy or lossless?
+Ans. Lossless.
+Q8. What data structure is commonly used?
+Ans. Min-priority queue / min-heap.
+Q9. What is its time complexity?
+Ans. O(k log k), where k is the number of distinct characters.
+
+============================================================
+PRACTICAL 3: FRACTIONAL KNAPSACK
+============================================================
+
+TITLE:
+Write a program to solve the Fractional Knapsack problem using a Greedy Method.
+
+AIM:
+To find the maximum profit in a Fractional Knapsack problem using the Greedy Method.
+
+OBJECTIVES:
+1. To understand the Knapsack problem.
+2. To calculate the profit-to-weight ratio.
+3. To select items in decreasing order of their ratio.
+4. To maximize profit without exceeding the capacity.
+
+BASIC THEORY:
+A knapsack has a limited capacity. Every item has a weight and a profit.
+In Fractional Knapsack, an item can be divided. We may take a fraction of an item.
+The Greedy Method selects the item with the highest profit/weight ratio first.
+Ratio = Profit / Weight.
+
+ALGORITHM:
+1. Start.
+2. Read the number of items, their weights and profits, and knapsack capacity.
+3. Calculate profit/weight ratio for every item.
+4. Sort items in decreasing order of ratio.
+5. Set total profit = 0.
+6. Visit each item in sorted order:
+   a. If the complete item fits, take it and add its profit.
+   b. Otherwise, take the required fraction and add the proportional profit.
+   c. Stop when the capacity becomes full.
+7. Display maximum profit.
+8. Stop.
+
+PYTHON PROGRAM:
+def fractional_knapsack(weights, profits, capacity):
+    items = []
+    for i in range(len(weights)):
+        ratio = profits[i] / weights[i]
+        items.append((ratio, weights[i], profits[i], i + 1))
+
+    items.sort(reverse=True)
+    total_profit = 0.0
+
+    for ratio, weight, profit, item_no in items:
+        if capacity <= 0:
+            break
+
+        if weight <= capacity:
+            capacity -= weight
+            total_profit += profit
+            print("Taken full item:", item_no)
+        else:
+            fraction = capacity / weight
+            total_profit += profit * fraction
+            print("Taken fraction of item:", item_no, "=", fraction)
+            capacity = 0
+
+    return total_profit
+
+n = int(input("Enter number of items: "))
+weights = []
+profits = []
+
+for i in range(n):
+    weights.append(float(input("Enter weight of item " + str(i + 1) + ": ")))
+    profits.append(float(input("Enter profit of item " + str(i + 1) + ": ")))
+
+capacity = float(input("Enter knapsack capacity: "))
+print("Maximum profit:", fractional_knapsack(weights, profits, capacity))
+
+SAMPLE INPUT:
+Number of items: 3
+Weights: 10, 20, 30
+Profits: 60, 100, 120
+Capacity: 50
+
+SAMPLE OUTPUT:
+Maximum profit: 240.0
+
+COMPLEXITY:
+Time Complexity: O(n log n) because of sorting.
+Space Complexity: O(n) for storing the items.
+
+CONTROL ABSTRACTION - GREEDY METHOD:
+1. Start with an empty solution.
+2. Select the item with the highest profit/weight ratio.
+3. If the complete item fits, take it.
+4. Otherwise, take the available fraction.
+5. Continue until the bag is full or all items are considered.
+6. Return total profit.
+
+CONCLUSION:
+Thus, the Fractional Knapsack problem was solved using the Greedy Method by selecting items according to their profit-to-weight ratio.
+
+EXTRA VIVA / PRACTICAL QUESTIONS:
+Q1. What is a Knapsack problem?
+Ans. It is an optimization problem in which we select items to maximize profit within a weight limit.
+Q2. What is Fractional Knapsack?
+Ans. We can take a complete item or a fraction of an item.
+Q3. Which method is used?
+Ans. Greedy Method.
+Q4. What is the selection ratio?
+Ans. Profit divided by weight.
+Q5. Why do we sort in decreasing order?
+Ans. To select the highest profit per unit weight first.
+Q6. Can we take half an item?
+Ans. Yes, in Fractional Knapsack.
+Q7. What is the time complexity?
+Ans. O(n log n).
+Q8. Is Greedy suitable for Fractional Knapsack?
+Ans. Yes, it gives an optimal solution for the Fractional Knapsack problem.
+
+============================================================
+PRACTICAL 4: 0/1 KNAPSACK USING DYNAMIC PROGRAMMING
+============================================================
+
+TITLE:
+Write a program to solve the 0/1 Knapsack problem using Dynamic Programming or Branch and Bound strategy.
+
+AIM:
+To solve the 0/1 Knapsack problem using Dynamic Programming and find the maximum profit within the given capacity.
+
+OBJECTIVES:
+1. To understand Dynamic Programming.
+2. To construct a DP table.
+3. To select or reject each item.
+4. To calculate the maximum possible profit.
+
+BASIC THEORY:
+In 0/1 Knapsack, every item is indivisible.
+We either take the complete item (1) or leave it (0). We cannot take a fraction.
+Dynamic Programming stores answers to smaller subproblems in a table to avoid repeated calculations.
+DP formula:
+If weight[i] <= capacity:
+DP[i][w] = max(DP[i-1][w], profit[i] + DP[i-1][w-weight[i]])
+Otherwise:
+DP[i][w] = DP[i-1][w]
+
+ALGORITHM:
+1. Start.
+2. Read number of items n, weights, profits and capacity W.
+3. Create a DP table of size (n+1) x (W+1).
+4. Initialize the first row and first column with zero.
+5. For each item i from 1 to n:
+   a. For each capacity w from 1 to W:
+      i. If weight[i-1] <= w, take the maximum of:
+         - Not taking the item: DP[i-1][w]
+         - Taking the item: profit[i-1] + DP[i-1][w-weight[i-1]]
+      ii. Otherwise copy DP[i-1][w].
+6. The last cell DP[n][W] gives maximum profit.
+7. Trace the table to identify selected items.
+8. Display maximum profit and selected items.
+9. Stop.
+
+PYTHON PROGRAM:
+def knapsack_01(weights, profits, capacity):
+    n = len(weights)
+    dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            if weights[i - 1] <= w:
+                dp[i][w] = max(
+                    dp[i - 1][w],
+                    profits[i - 1] + dp[i - 1][w - weights[i - 1]]
+                )
+            else:
+                dp[i][w] = dp[i - 1][w]
+
+    selected = []
+    w = capacity
+    for i in range(n, 0, -1):
+        if dp[i][w] != dp[i - 1][w]:
+            selected.append(i)
+            w -= weights[i - 1]
+
+    return dp[n][capacity], selected
+
+n = int(input("Enter number of items: "))
+weights = []
+profits = []
+
+for i in range(n):
+    weights.append(int(input("Enter weight of item " + str(i + 1) + ": ")))
+    profits.append(int(input("Enter profit of item " + str(i + 1) + ": ")))
+
+capacity = int(input("Enter knapsack capacity: "))
+maximum_profit, selected_items = knapsack_01(weights, profits, capacity)
+
+print("Maximum profit:", maximum_profit)
+print("Selected item numbers:", selected_items)
+
+SAMPLE INPUT:
+Number of items: 3
+Weights: 10, 20, 30
+Profits: 60, 100, 120
+Capacity: 50
+
+SAMPLE OUTPUT:
+Maximum profit: 220
+Selected item numbers: [3, 2]
+
+COMPLEXITY:
+Time Complexity: O(nW), where n is the number of items and W is the capacity.
+Space Complexity: O(nW) for the DP table.
+
+CONTROL ABSTRACTION - DYNAMIC PROGRAMMING:
+1. Divide the main problem into smaller subproblems.
+2. Store the result of each subproblem in a table.
+3. Reuse stored results instead of calculating them again.
+4. Combine the stored results to obtain the optimal answer.
+For 0/1 Knapsack, each table cell stores the maximum profit possible for the first i items and capacity w.
+
+CONCLUSION:
+Thus, the 0/1 Knapsack problem was solved using Dynamic Programming and the maximum profit was obtained without exceeding the capacity.
+
+EXTRA VIVA / PRACTICAL QUESTIONS:
+Q1. What is Dynamic Programming?
+Ans. It solves a problem by solving smaller subproblems and storing their results.
+Q2. What are overlapping subproblems?
+Ans. The same smaller problems occur repeatedly.
+Q3. What is optimal substructure?
+Ans. An optimal solution can be built from optimal solutions of smaller problems.
+Q4. Can we take a fraction of an item in 0/1 Knapsack?
+Ans. No.
+Q5. What does each DP table cell represent?
+Ans. The maximum profit using the first i items and capacity w.
+Q6. What is the time complexity?
+Ans. O(nW).
+Q7. What is the difference between Fractional and 0/1 Knapsack?
+Ans. Fractional allows parts of items and uses Greedy; 0/1 allows only complete items or no item and can be solved using Dynamic Programming.
+Q8. Why is zero placed in the first row and column?
+Ans. With zero items or zero capacity, the maximum profit is zero.
+
+============================================================
+PRACTICAL 5: N-QUEENS USING BACKTRACKING
+============================================================
+
+TITLE:
+Design an N-Queens matrix having the first Queen placed. Use Backtracking to place the remaining Queens and generate the final N-Queens matrix.
+
+AIM:
+To solve the N-Queens problem using Backtracking by placing N queens on an N x N chessboard so that no two queens attack each other.
+
+OBJECTIVES:
+1. To understand the Backtracking technique.
+2. To check safe positions on a chessboard.
+3. To place queens row by row.
+4. To undo a placement when it does not lead to a solution.
+
+BASIC THEORY:
+The N-Queens problem asks us to place N queens on an N x N chessboard.
+No two queens should be in the same row, column or diagonal.
+Backtracking tries a possible choice. If it cannot lead to a solution, it removes that choice and tries another one.
+For N=2 and N=3, no solution exists. Solutions exist for N=1 and all N >= 4.
+
+ALGORITHM:
+1. Start.
+2. Read N and create an N x N board filled with 0.
+3. Place queens column by column (or row by row).
+4. For the current column, try every row.
+5. Check whether the position is safe:
+   a. Check the same row on the left.
+   b. Check the upper-left diagonal.
+   c. Check the lower-left diagonal.
+6. If safe, place a queen (1) in that cell.
+7. Recursively try to place the next queen.
+8. If all queens are placed, return success.
+9. If the next placement fails, remove the queen (set cell to 0). This is backtracking.
+10. If no row is safe, return failure.
+11. Display the board if a solution is found.
+12. Stop.
+
+PYTHON PROGRAM:
+def is_safe(board, row, col, n):
+    # Check same row on the left
+    for j in range(col):
+        if board[row][j] == 1:
+            return False
+
+    # Check upper-left diagonal
+    i, j = row - 1, col - 1
+    while i >= 0 and j >= 0:
+        if board[i][j] == 1:
+            return False
+        i -= 1
+        j -= 1
+
+    # Check lower-left diagonal
+    i, j = row + 1, col - 1
+    while i < n and j >= 0:
+        if board[i][j] == 1:
+            return False
+        i += 1
+        j -= 1
+
+    return True
+
+def solve_n_queens(board, col, n):
+    if col >= n:
+        return True
+
+    for row in range(n):
+        if is_safe(board, row, col, n):
+            board[row][col] = 1
+
+            if solve_n_queens(board, col + 1, n):
+                return True
+
+            board[row][col] = 0  # Backtracking
+
+    return False
+
+n = int(input("Enter size of chessboard: "))
+board = [[0 for _ in range(n)] for _ in range(n)]
+
+if solve_n_queens(board, 0, n):
+    print("Solution:")
+    for row in board:
+        print(" ".join("Q" if cell == 1 else "X" for cell in row))
+else:
+    print("No solution exists.")
+
+SAMPLE OUTPUT FOR N = 4:
+Enter size of chessboard: 4
+Solution:
+X X Q X
+Q X X X
+X X X Q
+X Q X X
+
+NOTE:
+Another valid 4-Queens arrangement may also be printed depending on the order in which rows are checked.
+If the practical specifically says the first Queen is already placed, keep that queen fixed and start checking the remaining columns from the next column. Confirm the given first-queen position with the examiner.
+
+COMPLEXITY:
+Time Complexity: O(N!) as a commonly used upper-bound description for the backtracking search.
+Space Complexity: O(N^2) for the board, plus O(N) recursion stack.
+
+CONTROL ABSTRACTION - BACKTRACKING:
+BACKTRACK(solution):
+1. If the solution is complete, return success.
+2. For each possible choice:
+   a. If the choice is safe, make the choice.
+   b. Recursively continue.
+   c. If it fails, undo the choice.
+3. If no choice works, return failure.
+In N-Queens, placing a queen is the choice and removing it (setting the cell to 0) is the backtracking step.
+
+CONCLUSION:
+Thus, the N-Queens problem was solved using Backtracking by checking safe positions and placing queens so that no two queens attack each other.
+
+EXTRA VIVA / PRACTICAL QUESTIONS:
+Q1. What is Backtracking?
+Ans. It tries a choice and goes back if that choice does not lead to a solution.
+Q2. Why is N-Queens a backtracking problem?
+Ans. Because we place queens step by step and undo unsafe choices.
+Q3. How can a queen attack?
+Ans. Horizontally, vertically and diagonally.
+Q4. What is a safe position?
+Ans. A position where no already placed queen can attack the new queen.
+Q5. What is the base condition?
+Ans. When all N queens have been placed successfully.
+Q6. What does board[row][col] = 0 mean after a failed recursive call?
+Ans. It removes the queen and tries another position.
+Q7. Is a solution possible for N=2 or N=3?
+Ans. No.
+Q8. Give applications of Backtracking.
+Ans. N-Queens, Sudoku, graph coloring, maze solving and sum of subsets.
+Q9. What is the difference between recursion and backtracking?
+Ans. Recursion is a function calling itself; backtracking is a problem-solving technique that uses choices and undoing, often implemented with recursion.
+
+============================================================
+IMPORTANT DAA CONCEPTS FOR PRACTICAL VIVA
+============================================================
+
+1. What is DAA?
+Design and Analysis of Algorithms. It studies how algorithms are designed and how their time and space requirements are analyzed.
+
+2. What is an algorithm?
+A finite step-by-step procedure to solve a problem.
+
+3. What is time complexity?
+It describes how the running time grows with input size.
+
+4. What is space complexity?
+It describes how much memory an algorithm uses as input size grows.
+
+5. What is Big-O notation?
+It represents an upper-bound growth rate of an algorithm.
+
+6. What is recursion?
+A function calling itself.
+
+7. What is a Greedy Algorithm?
+It chooses the best local option at each step.
+
+8. What is Dynamic Programming?
+It stores solutions of smaller repeated subproblems and reuses them.
+
+9. What is Backtracking?
+It tries a possible solution and reverses the choice if it fails.
+
+10. What is a brute-force method?
+It checks all possible candidates or solutions.
+
+11. What is an optimal solution?
+A feasible solution with the best possible value for the objective.
+
+12. What is a feasible solution?
+A solution that satisfies all given conditions or constraints.
+
+13. What is the difference between Greedy and Dynamic Programming?
+Greedy makes a locally best choice and usually does not reconsider it. Dynamic Programming solves and stores subproblems to obtain an optimal result when the required properties hold.
+
+14. What is the difference between Backtracking and Dynamic Programming?
+Backtracking explores choices and undoes failed choices. Dynamic Programming stores subproblem results to avoid repeated work.
+
+15. What is a recurrence relation?
+An equation that defines a problem in terms of smaller input values, such as F(n) = F(n-1) + F(n-2).
+
+============================================================
+CONTROL ABSTRACTION - QUICK REVISION
+============================================================
+
+GREEDY:
+Select the best available choice -> check feasibility -> include it -> repeat until complete.
+Used in this manual: Huffman Encoding and Fractional Knapsack.
+
+DYNAMIC PROGRAMMING:
+Define subproblems -> initialize table -> calculate and store results -> obtain final answer.
+Used in this manual: 0/1 Knapsack.
+
+BACKTRACKING:
+Try a choice -> check/continue -> if failure, undo choice -> try another choice.
+Used in this manual: N-Queens.
+
+RECURSION:
+Base case -> recursive call with smaller input -> return result.
+Used in this manual: Recursive Fibonacci and N-Queens.
+
+============================================================
+IMPORTANT PRACTICAL EXAM TIPS
+============================================================
+
+1. First explain the aim in one or two sentences.
+2. Identify the design technique before explaining the code:
+   Fibonacci - Recursion and Iteration
+   Huffman - Greedy
+   Fractional Knapsack - Greedy
+   0/1 Knapsack - Dynamic Programming
+   N-Queens - Backtracking
+3. Explain the important variables and functions in your code.
+4. Run the program with a small input and show the output.
+5. Be ready to explain the base condition, loop, and decision condition.
+6. Remember the time complexity of each program.
+7. In N-Queens, explain the safety checks and the statement that removes a queen.
+8. In Knapsack, clearly explain the difference between taking a fraction and taking a complete item.
+9. In Huffman, explain why two minimum frequencies are combined each time.
+10. If asked to write control abstraction, write the general steps of the technique, not the complete Python program.
+
+COMPLEXITY QUICK TABLE:
+Practical 1 - Fibonacci iterative: O(n) time; O(1) auxiliary space.
+Practical 1 - Fibonacci recursive: O(2^n) time; O(n) stack space.
+Practical 2 - Huffman Coding: O(k log k) time; O(k) space.
+Practical 3 - Fractional Knapsack: O(n log n) time; O(n) space.
+Practical 4 - 0/1 Knapsack DP: O(nW) time; O(nW) space.
+Practical 5 - N-Queens: O(N!) commonly stated time upper bound; O(N^2) board space plus O(N) recursion stack.
+
+END OF DAA PRACTICAL NOTES
